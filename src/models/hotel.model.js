@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Veterinarian = sequelize.define('veterinarians', {
+const Hotel = sequelize.define('hotels', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -11,7 +11,7 @@ const Veterinarian = sequelize.define('veterinarians', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-    clinic_name: {
+    name: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -23,11 +23,11 @@ const Veterinarian = sequelize.define('veterinarians', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    tax_document: {
+    license_document: {
         type: DataTypes.STRING,
         allowNull: false
     },
 }, {
 });
 
-module.exports = Veterinarian; 
+module.exports = Hotel; 

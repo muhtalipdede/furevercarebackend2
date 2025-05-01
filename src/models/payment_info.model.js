@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Groomer = sequelize.define('groomers', {
+const PaymentInfo = sequelize.define('payment_info', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -9,25 +9,20 @@ const Groomer = sequelize.define('groomers', {
     },
     user_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    name: {
-        type: DataTypes.STRING,
         allowNull: false
     },
-    district: {
-        type: DataTypes.STRING,
+    card_last_4_digits: {
+        type: DataTypes.STRING(4),
         allowNull: false
     },
-    neighborhood: {
-        type: DataTypes.STRING,
+    card_type: {
+        type: DataTypes.STRING(20),
         allowNull: false
     },
-    license_document: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-}, {
+    saved_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
 });
 
-module.exports = Groomer; 
+module.exports = PaymentInfo; 

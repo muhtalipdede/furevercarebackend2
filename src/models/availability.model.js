@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Veterinarian = sequelize.define('veterinarians', {
+const Availability = sequelize.define('availability', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -9,25 +9,24 @@ const Veterinarian = sequelize.define('veterinarians', {
     },
     user_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    clinic_name: {
-        type: DataTypes.STRING,
         allowNull: false
     },
-    district: {
-        type: DataTypes.STRING,
+    service_type: {
+        type: DataTypes.ENUM('VetClinic', 'HomeVet', 'Grooming', 'HomeGrooming', 'Hotel', 'Sitter'),
         allowNull: false
     },
-    neighborhood: {
-        type: DataTypes.STRING,
+    date: {
+        type: DataTypes.DATE,
         allowNull: false
     },
-    tax_document: {
-        type: DataTypes.STRING,
+    start_time: {
+        type: DataTypes.TIME,
         allowNull: false
     },
-}, {
+    end_time: {
+        type: DataTypes.TIME,
+        allowNull: false
+    }
 });
 
-module.exports = Veterinarian; 
+module.exports = Availability; 

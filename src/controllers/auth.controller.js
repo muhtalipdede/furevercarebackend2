@@ -1,262 +1,288 @@
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const User = require('../models/user.model');
-const HotelOwner = require('../models/hotelOwner.model');
-const Groomer = require('../models/groomer.model');
-const Caregiver = require('../models/caregiver.model');
-const transporter = require('../config/email.config');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
+const Veterinarian = require('../models/veterinarian.model');
+const Groomer = require('../models/groomer.model');
+const Hotel = require('../models/hotel.model');
+const Caregiver = require('../models/caregiver.model');
 
-exports.register = async (req, res) => {
-  // Request body'yi logla
-  console.log('Register Request Body:', req.body);
-  
+exports.registerPetOwner = async (req, res) => {
+  const { name, surname, email, phone_number, password } = req.body;
+
   try {
-    const {  email, password } = req.body;
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      where: {
+        email: {
+          [Op.like]: email,
+        },
+      },
+    });
 
-    
-
-    const userExists = await User.findOne({ where: { email } });
-    if (userExists) {
-      return res.status(400).json({ message: 'Bu email adresi zaten kullanımda' });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
     }
 
-    // Şifreyi hashleme
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-
     // Create new user
-    const user = await User.create({
+    const newUser = await User.create({
       email,
       password: hashedPassword,
+      name,
+      surname,
+      phone_number,
+      role: 'Owner',
     });
 
-    // Generate token
-    const token = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    // Kaydet token'ı veritabanına
-    await user.update({
-      emailVerificationToken: token // Email doğrulama için
+    // Generate JWT token
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
     });
 
-    res.status(201).json({
-      message: 'User registered successfully',
-      token,
-      user: {
-        id: user.id,
-        email: user.email
-      }
-    });
+    return res.status(201).json({ token, user: newUser });
   } catch (error) {
-    res.status(500).json({ message: 'Error registering user', error: error.message });
+    console.error('Error registering user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.registerVeterinarian = async (req, res) => {
+  const { name, surname, email, phone_number, password, clinic_name, district, neighborhood, tax_document } = req.body;
+
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      where: {
+        email: {
+          [Op.like]: email,
+        },
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      name,
+      surname,
+      phone_number,
+      role: 'Veterinarian',
+    });
+
+    // Add additional fields for veterinarian
+    const veterinarianDetails = Veterinarian.create({
+      clinic_name,
+      district,
+      neighborhood,
+      tax_document,
+      user_id: newUser.id,
+    });
+
+    // Generate JWT token
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
+
+    return res.status(201).json({ token, user: newUser, veterinarian: veterinarianDetails });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.registerGroomer = async (req, res) => {
+  const { name, surname, email, phone_number, password, groomer_name, district, neighborhood, lisence_document } = req.body;
+
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      where: {
+        email: {
+          [Op.like]: email,
+        },
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      name,
+      surname,
+      phone_number,
+      role: 'Groomer',
+    });
+
+    // Add additional fields for groomer
+    const groomerDetails = await Groomer.create({
+      name: groomer_name,
+      district,
+      neighborhood,
+      lisence_document,
+      user_id: newUser.id,
+    });
+
+    // Generate JWT token
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
+
+    return res.status(201).json({ token, user: newUser, groomer: groomerDetails });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.registerHotel = async (req, res) => {
+  const { name, surname, email, phone_number, password, hotel_name, district, neighborhood, lisence_document } = req.body;
+
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      where: {
+        email: {
+          [Op.like]: email,
+        },
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      name,
+      surname,
+      phone_number,
+      role: 'Hotel',
+    });
+
+    // Add additional fields for groomer
+    const hotelDetails = await Hotel.create({
+      name: hotel_name,
+      district,
+      neighborhood,
+      lisence_document,
+      user_id: newUser.id,
+    });
+
+    // Generate JWT token
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
+
+    return res.status(201).json({ token, user: newUser, hotel: hotelDetails });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.registerCaregiver = async (req, res) => {
+  const { name, surname, email, phone_number, password, district, neighborhood } = req.body;
+
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      where: {
+        email: {
+          [Op.like]: email,
+        },
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      name,
+      surname,
+      phone_number,
+      role: 'Caregiver',
+    });
+
+    // Add additional fields for groomer
+    const caregiverDetails = await Caregiver.create({
+      district,
+      neighborhood,
+      user_id: newUser.id,
+    });
+
+    // Generate JWT token
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
+
+    return res.status(201).json({ token, user: newUser, caregiver: caregiverDetails });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 exports.login = async (req, res) => {
-  console.log('Login Request Body:', req.body);
-  
+  const { email, password } = req.body;
+
   try {
-    const { email, password, userType } = req.body;
-
-    let user = null;
-    let userData = null;
-
-    // Kullanıcı tipine göre doğru tablodan arama yapıyoruz
-    switch(userType) {
-      case 'user':
-        user = await User.findOne({ where: { email } });
-        if (user) {
-          userData = {
-            id: user.id,
-            email: user.email,
-            
-          };
-        }
-        break;
-      case 'hotel_owner':
-        user = await HotelOwner.findOne({ where: { email } });
-        if (user) {
-          userData = {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            phoneNumber: user.phoneNumber
-          };
-        }
-        break;
-      case 'groomer':
-        user = await Groomer.findOne({ where: { email } });
-        if (user) {
-          userData = {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            phoneNumber: user.phoneNumber
-          };
-        }
-        break;
-      case 'caregiver':
-        user = await Caregiver.findOne({ where: { email } });
-        if (user) {
-          userData = {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            phoneNumber: user.phoneNumber,
-            experience: user.experience,
-            hourlyRate: user.hourlyRate,
-            availability: user.availability
-          };
-        }
-        break;
-      default:
-        return res.status(400).json({ message: 'Invalid user type' });
-    }
+    // Find user by email
+    const user = await User.findOne({
+      where: {
+        email: {
+          [Op.like]: email,
+        },
+      },
+    });
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate token
-    const token = jwt.sign(
-      { 
-        userId: user.id,
-        userType: userType
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    res.json({
-      message: 'Login successful',
-      token,
-      user: userData
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Error logging in', error: error.message });
-  }
-};
-
-exports.sendVerificationEmail = async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ where: { email } });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const token = crypto.randomBytes(32).toString('hex');
-    user.emailVerificationToken = token;
-    await user.save();
-
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-    
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Email Verification',
-      html: `
-        <h1>Verify Your Email</h1>
-        <p>Click the link below to verify your email:</p>
-        <a href="${verificationUrl}">Verify Email</a>
-      `
+    // Generate JWT token
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
     });
 
-    res.json({ message: 'Verification email sent' });
+    return res.status(200).json({ token });
   } catch (error) {
-    res.status(500).json({ message: 'Error sending verification email', error: error.message });
+    console.error('Error logging in user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
-exports.verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.params;
-    const user = await User.findOne({ where: { emailVerificationToken: token } });
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid verification token' });
-    }
-
-    user.isEmailVerified = true;
-    user.emailVerificationToken = null;
-    await user.save();
-
-    res.json({ message: 'Email verified successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error verifying email', error: error.message });
-  }
-};
-
-exports.forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ where: { email } });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const token = crypto.randomBytes(32).toString('hex');
-    user.passwordResetToken = token;
-    user.passwordResetExpires = Date.now() + 3600000; // 1 hour
-    await user.save();
-
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Password Reset',
-      html: `
-        <h1>Reset Your Password</h1>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetUrl}">Reset Password</a>
-        <p>This link will expire in 1 hour.</p>
-      `
-    });
-
-    res.json({ message: 'Password reset email sent' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error sending password reset email', error: error.message });
-  }
-};
-
-exports.resetPassword = async (req, res) => {
-  try {
-    const { token, password } = req.body;
-    const user = await User.findOne({
-      where: {
-        passwordResetToken: token,
-        passwordResetExpires: { [Op.gt]: Date.now() }
-      }
-    });
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired reset token' });
-    }
-
-    user.password = password;
-    user.passwordResetToken = null;
-    user.passwordResetExpires = null;
-    await user.save();
-
-    res.json({ message: 'Password reset successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error resetting password', error: error.message });
-  }
-}; 

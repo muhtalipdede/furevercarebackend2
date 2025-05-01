@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Veterinarian = sequelize.define('veterinarians', {
+const Document = sequelize.define('documents', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -9,25 +9,20 @@ const Veterinarian = sequelize.define('veterinarians', {
     },
     user_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: false
     },
-    clinic_name: {
+    document_type: {
+        type: DataTypes.ENUM('License', 'Certificate', 'Other'),
+        allowNull: false
+    },
+    file_path: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    district: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    neighborhood: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    tax_document: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-}, {
+    uploaded_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
 });
 
-module.exports = Veterinarian; 
+module.exports = Document; 

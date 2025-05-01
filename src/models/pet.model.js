@@ -1,59 +1,40 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const User = require('./user.model');
 
-const Pet = sequelize.define('Pet', {
+const Pet = sequelize.define('pets', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   name: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.STRING,
     allowNull: false
   },
   type: {
-    type: DataTypes.ENUM('dog', 'cat', 'bird', 'other'),
+    type: DataTypes.STRING,
     allowNull: false
   },
   breed: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.STRING,
     allowNull: false
   },
   age: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  description: {
-    type: DataTypes.TEXT
+  vaccination_status: {
+    type: DataTypes.TEXT,
+    allowNull: false
   },
-  image: {
-    type: DataTypes.STRING(255)
-  },
-  numberOfAnimals: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 1
-  },
-  ownerId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id'
-    }
+  chip_id: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
-});
-
-// İlişkileri tanımla
-Pet.belongsTo(User, {
-  foreignKey: 'ownerId',
-  as: 'owner'
-});
-
-User.hasMany(Pet, {
-  foreignKey: 'ownerId',
-  as: 'pets'
 });
 
 module.exports = Pet; 

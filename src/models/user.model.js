@@ -2,63 +2,47 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const bcrypt = require('bcrypt');
 
-const User = sequelize.define('User', {
+const User = sequelize.define('users', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  surname: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   email: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.STRING,
     allowNull: false,
-    validate: {
-      isEmail: true
-    }
+    unique: true
+  },
+  phone_number: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
   password: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING,
+    allowNull: false,
+    field: 'password_hash'
+  },
+  role: {
+    type: DataTypes.ENUM('Owner', 'Veterinarian', 'Groomer', 'Hotel', 'Caregiver'),
     allowNull: false
   },
   address: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.TEXT,
     allowNull: true
   },
-  role: {
-    type: DataTypes.ENUM('user', 'admin'),
-    defaultValue: 'user'
-  },
-  isEmailVerified: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  emailVerificationToken: {
+  location: {
     type: DataTypes.STRING,
-    allowNull: true
-  },
-  passwordResetToken: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  passwordResetExpires: {
-    type: DataTypes.DATE,
     allowNull: true
   }
 }, {
-  hooks: {
-    beforeSave: async (user) => {
-      if (user.changed('password')) {
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(user.password, salt);
-      }
-    }
-  },
-  indexes: [
-    {
-      unique: true,
-      fields: ['email']
-    }
-  ]
 });
 
 User.prototype.comparePassword = async function(candidatePassword) {
