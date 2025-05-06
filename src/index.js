@@ -15,9 +15,11 @@ app.use(express.json());
 // Routes
 const authRoutes = require('./routes/auth.routes');
 const petRoutes = require('./routes/pet.routes');
+const notificationRoutes = require('./routes/notification.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/pets', petRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Database connection and server start
 const PORT = process.env.PORT;
