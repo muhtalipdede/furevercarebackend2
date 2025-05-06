@@ -1,4 +1,5 @@
 const Pet = require('../models/pet.model');
+const Notification = require('../models/notification.model');
 
 exports.getAllPets = async (req, res) => {
     try {
@@ -29,6 +30,14 @@ exports.createPet = async (req, res) => {
             vaccination_status: 'Not vaccinated',
             chip_id: null
         });
+
+        Notification.create({
+            user_id: id,
+            message: `New pet added: ${name}`,
+            type: 'Info',
+            is_read: false
+        });
+
         return res.status(201).json(newPet);
     } catch (error) {
         console.error('Error creating pet:', error);

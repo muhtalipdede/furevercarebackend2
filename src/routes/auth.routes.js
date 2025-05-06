@@ -8,5 +8,6 @@ router.post('/register/groomer', authController.registerGroomer);
 router.post('/register/hotel', authController.registerHotel);
 router.post('/register/caregiver', authController.registerCaregiver);
 router.post('/login', authController.login);
+router.post('/forgot-password', authController.forgotPassword);
 
 module.exports = router; 

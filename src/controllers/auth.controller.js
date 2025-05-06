@@ -286,3 +286,39 @@ exports.login = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Find user by email
+    const user = await User.findOne({
+      where: {
+        email: {
+          [Op.like]: email,
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Generate a password reset token
+    const resetToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: '1h', // Token valid for 1 hour
+    });
+
+    // Send reset email (replace with your email sending logic)
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    console.log(`Password reset link: ${resetLink}`); // For debugging purposes
+
+    // Example: Sending email (use a real email service in production)
+    // await sendEmail(user.email, 'Password Reset', `Click here to reset your password: ${resetLink}`);
+
+    return res.status(200).json({ message: 'Password reset link sent to your email' });
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
